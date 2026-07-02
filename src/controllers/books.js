@@ -43,11 +43,32 @@ const createBook = async (req, res) => {
 };
 const updateBook = async (req, res) => {
   try {
-    res.status(200).json({
+    const { id } = req.params;
+    const { title, isbn, publish_year, author_id, publisher_id } = req.body;
+    const result = await pool.query(
+      `
+        UPDATE books
+        SET title = $1, isbn = $2, publish_year = $3, author_id = $4, publisher_id = $5
+        WHERE id = $6
+        RETURNING *
+      `,
+      [title, isbn, publish_year, author_id, publisher_id, id],
+    );
+    if (result.rowCount ===0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success:false,
+        msg:"Book not found"
+      })
+    }
+    res.status(StatusCodes.OK).json({
       success: true,
+      book: result.rows[0]
     });
   } catch (error) {
-    console.log(error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      msg: error.message,
+    });
   }
 };
 const deleteBook = async (req, res) => {
