@@ -3,7 +3,10 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT;
 
+const booksRouter = require('./routes/books')
+
 app.use(express.json())
+app.use('/api/v1/books', booksRouter)
 
 app.get('/health',(req, res)=>{
     res.status(200).json({
