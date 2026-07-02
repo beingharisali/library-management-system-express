@@ -1,7 +1,17 @@
-const express = require('express')
-const router = express.Router()
-const { getBooks } = require('../controllers/books')
+// src/routes/bookRoutes.js
+const express = require("express");
+const {
+  getBooks,
+  createBook,
+  updateBook,
+  deleteBook,
+} = require("../controllers/books");
 
-router.get('/', getBooks)
+const router = express.Router();
 
-module.exports = router
+router.get("/", getBooks);
+router.post("/", createBook);
+router.patch("/:id", updateBook);
+router.delete("/:id", deleteBook);
+
+module.exports = router;

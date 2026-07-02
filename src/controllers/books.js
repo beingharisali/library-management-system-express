@@ -1,27 +1,48 @@
+const { StatusCodes } = require("http-status-codes");
 const pool = require("../config/db");
 const getBooks = async (req, res) => {
   try {
     const result = await pool.query(`
-SELECT
-    b.id,
-    b.title,
-    b.isbn,
-    a.name AS author,
-    p.name AS publisher,
-    COUNT(bc.id) FILTER (WHERE bc.status = 'available') AS available_copies
-  FROM books b
-  JOIN authors a ON b.author_id = a.id
-  JOIN publishers p ON b.publisher_id = p.id
-  LEFT JOIN book_copies bc ON bc.book_id = b.id
-  GROUP BY b.id, a.name, p.name
-  ORDER BY b.id ASC
-`);
-    res.status(200).json({
+        SELECT books.id, books.title, books.ISBN, books.publish_year, authors.name AS author_name, publishers.name AS publisher_name FROM books
+        JOIN authors ON books.author_id = authors.id JOIN publishers ON books.publisher_id = publishers.id
+      `);
+    res.status(StatusCodes.OK).json({
       success: true,
+      count: result.rowCount,
       books: result.rows,
+    });
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+};
+const createBook = async (req, res) => {
+  try {
+    res.status(201).json({
+      success: true,
     });
   } catch (error) {
     console.log(error);
   }
 };
-module.exports = { getBooks };
+const updateBook = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+const deleteBook = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+module.exports = { getBooks, createBook, updateBook, deleteBook };
