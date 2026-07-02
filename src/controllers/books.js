@@ -54,15 +54,15 @@ const updateBook = async (req, res) => {
       `,
       [title, isbn, publish_year, author_id, publisher_id, id],
     );
-    if (result.rowCount ===0) {
+    if (result.rowCount === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
-        success:false,
-        msg:"Book not found"
-      })
+        success: false,
+        msg: "Book not found",
+      });
     }
     res.status(StatusCodes.OK).json({
       success: true,
-      book: result.rows[0]
+      book: result.rows[0],
     });
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -73,11 +73,32 @@ const updateBook = async (req, res) => {
 };
 const deleteBook = async (req, res) => {
   try {
+    const { id } = req.params;
+    await pool.query(`DELETE FROM book_copies WHERE book_id = $1 RETURNING *`, [id])
+    const result = await pool.query(
+      `
+        DELETE FROM books
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id],
+    );
+    if (result.rowCount === 0) {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        msg: "Book not found",
+      });
+    }
     res.status(200).json({
       success: true,
+      msg: "Book deleted successfully",
+      book: result.rows[0],
     });
   } catch (error) {
-    console.log(error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      msg: error.message,
+    });
   }
 };
 module.exports = { getBooks, createBook, updateBook, deleteBook };
