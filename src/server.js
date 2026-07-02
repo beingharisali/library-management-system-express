@@ -4,9 +4,11 @@ const app = express();
 const port = process.env.PORT;
 
 const booksRouter = require('./routes/books')
+const borrowRouter = require('./routes/borrow')
 
 app.use(express.json())
 app.use('/api/v1/books', booksRouter)
+app.use('/api/v1/borrow', borrowRouter)
 
 app.get('/health',(req, res)=>{
     res.status(200).json({
