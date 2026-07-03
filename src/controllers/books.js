@@ -101,4 +101,34 @@ const deleteBook = async (req, res) => {
     });
   }
 };
-module.exports = { getBooks, createBook, updateBook, deleteBook };
+const getBookDetails = async (req, res) => {
+  try {
+   const result = await pool.query(`
+      SELECT
+        books.id,
+        books.title,
+        books.isbn,
+        books.publish_year,
+        authors.name AS author,
+        publishers.name AS publisher,
+        COUNT(book_copies.id) FILTER (WHERE book_copies.status = 'available') AS available_copies
+        FROM books
+        JOIN authors ON books.author_id = authors.id
+        JOIN publishers ON books.publisher_id = publishers.id
+        LEFT JOIN book_copies ON book_copies.book_id = books.id
+        GROUP BY books.id, authors.name, publishers.name
+        ORDER BY books.id ASC;
+    `)
+    res.status(StatusCodes.OK).json({
+      success:true,
+      book:result.rows
+    })
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+};
+
+module.exports = { getBooks, createBook, updateBook, deleteBook, getBookDetails };
