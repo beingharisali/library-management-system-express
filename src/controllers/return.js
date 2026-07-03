@@ -55,7 +55,7 @@ const returnBook = async (req, res) => {
 
     const updatedBorrowResult = await client.query(
       `
-      UPDATE borrow_records
+      UPDATE borrow_record
       SET return_date = CURRENT_DATE
       WHERE id = $1
       RETURNING *
